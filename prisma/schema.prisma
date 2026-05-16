@@ -1,0 +1,93 @@
+// Modèle de données — v2 : devise FCFA (XOF, entier), login influenceur (email + password).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  slug         String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  influencers  Influencer[]
+  scans        Scan[]
+  deviceBlocks DeviceBlock[]
+
+  @@map("restaurants")
+}
+
+model Influencer {
+  id               String   @id @default(uuid()) @db.Uuid
+  restaurantId     String   @map("restaurant_id") @db.Uuid
+  displayName      String   @map("display_name")
+  code             String
+  // Identifiants de login influenceur (créés par l'admin du restaurant)
+  email            String   @unique
+  passwordHash     String   @map("password_hash")
+  discountPercent  Int      @map("discount_percent")
+  // Montant fixe en FCFA (XOF), entier.
+  rewardPerScanXof Int      @map("reward_per_scan_xof")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  scans      Scan[]
+
+  @@unique([restaurantId, code], name: "uniq_influencer_code_per_restaurant")
+  @@index([restaurantId])
+  @@map("influencers")
+}
+
+model Scan {
+  id              String   @id @default(uuid()) @db.Uuid
+  restaurantId    String   @map("restaurant_id") @db.Uuid
+  influencerId    String   @map("influencer_id") @db.Uuid
+  fingerprintHash String   @map("fingerprint_hash")
+  // Snapshot du gain au moment T (jamais recalculé) — en FCFA entier.
+  rewardXof       Int      @map("reward_xof")
+  discountPercent Int      @map("discount_percent")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  influencer Influencer @relation(fields: [influencerId], references: [id], onDelete: Cascade)
+  ticket     Ticket?
+
+  @@index([restaurantId, createdAt(sort: Desc)])
+  @@index([influencerId, createdAt(sort: Desc)])
+  @@map("scans")
+}
+
+model Ticket {
+  id         String   @id @default(uuid()) @db.Uuid
+  scanId     String   @unique @map("scan_id") @db.Uuid
+  ticketCode String   @unique @map("ticket_code")
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  scan Scan @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@map("tickets")
+}
+
+model DeviceBlock {
+  id              String   @id @default(uuid()) @db.Uuid
+  restaurantId    String   @map("restaurant_id") @db.Uuid
+  fingerprintHash String   @map("fingerprint_hash")
+  blockedUntil    DateTime @map("blocked_until") @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, fingerprintHash], name: "uniq_device_block")
+  @@index([restaurantId, fingerprintHash, blockedUntil])
+  @@map("device_blocks")
+}

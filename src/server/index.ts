@@ -1,0 +1,69 @@
+import 'express-async-errors';
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import path from 'node:path';
+import http from 'node:http';
+import { fileURLToPath } from 'node:url';
+import { loadEnv } from '../shared/env.js';
+import { logger } from './lib/logger.js';
+import { healthRouter } from './routes/health.js';
+import { authRouter } from './routes/auth.js';
+import { influencerAuthRouter } from './routes/influencerAuth.js';
+import { adminInfluencersRouter } from './routes/admin.influencers.js';
+import { adminStatsRouter } from './routes/admin.stats.js';
+import { publicRouter } from './routes/public.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { createSocketServer } from './socket/index.js';
+
+const env = loadEnv();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const clientDist = path.resolve(__dirname, '../client');
+
+const app = express();
+
+// 1. Sécurité & parsing
+app.use(
+  helmet({
+    contentSecurityPolicy: env.NODE_ENV === 'production' ? undefined : false,
+  }),
+);
+app.use(cors({ origin: env.APP_DOMAIN, credentials: true }));
+app.use(express.json({ limit: '64kb' }));
+
+// 2. API
+const api = express.Router();
+api.use(healthRouter);
+api.use('/auth', authRouter);
+api.use('/influencer-auth', influencerAuthRouter);
+api.use('/admin/influencers', adminInfluencersRouter);
+api.use('/admin', adminStatsRouter);
+api.use('/public', publicRouter);
+app.use('/api', api);
+
+// 3. Static SPA (build Vite) — uniquement en prod
+if (env.NODE_ENV === 'production') {
+  app.use(express.static(clientDist));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientDist, 'index.html'));
+  });
+}
+
+// 4. Error handler — toujours en dernier
+app.use(errorHandler);
+
+// 5. http.Server partagé (Express + Socket.io)
+const server = http.createServer(app);
+createSocketServer(server, env.APP_DOMAIN);
+
+server.listen(env.PORT, () => {
+  logger.info({ port: env.PORT, env: env.NODE_ENV }, 'Serveur démarré');
+});
+
+const shutdown = (signal: string) => {
+  logger.info({ signal }, 'Arrêt du serveur');
+  server.close(() => process.exit(0));
+};
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
