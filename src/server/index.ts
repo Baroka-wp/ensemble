@@ -2,6 +2,7 @@ import 'express-async-errors';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +20,8 @@ import { createSocketServer } from './socket/index.js';
 const env = loadEnv();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.resolve(__dirname, '../client');
+const clientIndexPath = path.join(clientDist, 'index.html');
+const serveClient = fs.existsSync(clientIndexPath);
 
 const app = express();
 
@@ -41,13 +44,21 @@ api.use('/admin', adminStatsRouter);
 api.use('/public', publicRouter);
 app.use('/api', api);
 
-// 3. Static SPA (build Vite) — uniquement en prod
-if (env.NODE_ENV === 'production') {
+// 3. Static SPA (build Vite) — dès que dist/client est présent (image Docker / prod)
+if (serveClient) {
+  if (env.NODE_ENV !== 'production') {
+    logger.warn(
+      { NODE_ENV: env.NODE_ENV },
+      'Build client détecté : le SPA est servi même si NODE_ENV !== production',
+    );
+  }
   app.use(express.static(clientDist));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(clientDist, 'index.html'));
+    res.sendFile(clientIndexPath);
   });
+} else if (env.NODE_ENV === 'production') {
+  logger.error({ clientDist }, 'Build client introuvable en production');
 }
 
 // 4. Error handler — toujours en dernier
