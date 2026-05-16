@@ -1,4 +1,4 @@
-// Modèle de données — v2 : devise FCFA (XOF, entier), login influenceur (email + password).
+// Modèle v3 : influenceurs autonomes + collaborations restaurant ↔ influenceur.
 
 generator client {
   provider      = "prisma-client-js"
@@ -19,51 +19,90 @@ model Restaurant {
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  influencers  Influencer[]
-  scans        Scan[]
-  deviceBlocks DeviceBlock[]
+  collaborations Collaboration[]
+  scans          Scan[]
+  deviceBlocks   DeviceBlock[]
 
   @@map("restaurants")
 }
 
 model Influencer {
-  id               String   @id @default(uuid()) @db.Uuid
-  restaurantId     String   @map("restaurant_id") @db.Uuid
-  displayName      String   @map("display_name")
-  code             String
-  // Identifiants de login influenceur (créés par l'admin du restaurant)
-  email            String   @unique
-  passwordHash     String   @map("password_hash")
-  discountPercent  Int      @map("discount_percent")
-  // Montant fixe en FCFA (XOF), entier.
-  rewardPerScanXof Int      @map("reward_per_scan_xof")
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id           String   @id @default(uuid()) @db.Uuid
+  displayName  String   @map("display_name")
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
+  collaborations Collaboration[]
+
+  @@map("influencers")
+}
+
+// Statut d'une collaboration influenceur ↔ restaurant.
+//   pending          : demande envoyée, en attente de décision du restaurant
+//   active           : acceptée, le code est utilisable au scan
+//   rejected         : refusée par le restaurant
+//   paused_by_inf    : mise en pause par l'influenceur (peut être réactivée par lui)
+//   paused_by_resto  : mise en pause par le restaurant (peut être réactivée par lui)
+enum CollaborationStatus {
+  pending
+  active
+  rejected
+  paused_by_inf   @map("paused_by_inf")
+  paused_by_resto @map("paused_by_resto")
+
+  @@map("collaboration_status")
+}
+
+model Collaboration {
+  id           String   @id @default(uuid()) @db.Uuid
+  influencerId String   @map("influencer_id") @db.Uuid
+  restaurantId String   @map("restaurant_id") @db.Uuid
+
+  // Code promo unique par restaurant, modifiable par l'influenceur quand la collab est active.
+  code String
+
+  // Paramètres fixés par le restaurant (à l'acceptation ou via PATCH ultérieur).
+  // Optionnels tant que la demande est pending — renseignés au moment du accept.
+  discountPercent  Int? @map("discount_percent")
+  rewardPerScanXof Int? @map("reward_per_scan_xof")
+
+  status      CollaborationStatus @default(pending)
+  requestedAt DateTime            @default(now()) @map("requested_at") @db.Timestamptz(6)
+  decidedAt   DateTime?           @map("decided_at") @db.Timestamptz(6)
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  influencer Influencer @relation(fields: [influencerId], references: [id], onDelete: Cascade)
   restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   scans      Scan[]
 
-  @@unique([restaurantId, code], name: "uniq_influencer_code_per_restaurant")
-  @@index([restaurantId])
-  @@map("influencers")
+  // Un influenceur ne peut avoir qu'UNE collaboration (de n'importe quel statut) avec un même resto.
+  // Pour redemander après un reject, le resto doit d'abord supprimer ou l'influenceur réactiver.
+  @@unique([influencerId, restaurantId], name: "uniq_collaboration_pair")
+  // Le code reste unique par restaurant (côté scan, on cherche par slug + code).
+  @@unique([restaurantId, code], name: "uniq_collaboration_code_per_restaurant")
+  @@index([influencerId])
+  @@index([restaurantId, status])
+  @@map("collaborations")
 }
 
 model Scan {
   id              String   @id @default(uuid()) @db.Uuid
   restaurantId    String   @map("restaurant_id") @db.Uuid
-  influencerId    String   @map("influencer_id") @db.Uuid
+  collaborationId String   @map("collaboration_id") @db.Uuid
   fingerprintHash String   @map("fingerprint_hash")
-  // Snapshot du gain au moment T (jamais recalculé) — en FCFA entier.
+  // Snapshot du gain et de la réduction au moment T (jamais recalculés).
   rewardXof       Int      @map("reward_xof")
   discountPercent Int      @map("discount_percent")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  influencer Influencer @relation(fields: [influencerId], references: [id], onDelete: Cascade)
-  ticket     Ticket?
+  restaurant    Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  collaboration Collaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  ticket        Ticket?
 
   @@index([restaurantId, createdAt(sort: Desc)])
-  @@index([influencerId, createdAt(sort: Desc)])
+  @@index([collaborationId, createdAt(sort: Desc)])
   @@map("scans")
 }
 

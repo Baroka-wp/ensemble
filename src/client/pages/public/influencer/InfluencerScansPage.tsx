@@ -34,9 +34,21 @@ export function InfluencerScansPage() {
       ) : (
         <ul className="rounded-xl border border-sand/80 bg-white/90 divide-y divide-sand/60 shadow-sm overflow-hidden">
           {scans.map((scan: RecentScan) => (
-            <li key={scan.id} className="px-4 py-3.5 flex items-center justify-between text-sm">
-              <span className="text-warmgray tabular-nums">{formatDateTime(scan.createdAt)}</span>
-              <span className="font-mono text-orange tabular-nums font-medium">+{formatFCFA(scan.rewardXof)}</span>
+            <li
+              key={scan.id}
+              className="px-4 py-3.5 flex items-center justify-between gap-3 text-sm"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-espresso truncate">{scan.restaurantName}</p>
+                <p className="text-[11px] text-warmgray">
+                  <span className="font-mono">{scan.influencerCode}</span>
+                  <span className="mx-1.5">·</span>
+                  <span className="tabular-nums">{formatDateTime(scan.createdAt)}</span>
+                </p>
+              </div>
+              <span className="font-mono text-orange tabular-nums font-medium shrink-0">
+                +{formatFCFA(scan.rewardXof)}
+              </span>
             </li>
           ))}
         </ul>

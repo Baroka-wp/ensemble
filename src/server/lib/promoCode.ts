@@ -18,16 +18,17 @@ export function generatePromoCode(length = CODE_LEN): string {
 
 export { normalizePromoCode };
 
+/** Vérifie qu'un code n'est pas déjà pris par une autre collaboration du même restaurant. */
 export async function assertCodeAvailable(
   restaurantId: string,
   code: string,
-  excludeInfluencerId?: string,
+  excludeCollaborationId?: string,
 ): Promise<void> {
-  const existing = await prisma.influencer.findUnique({
-    where: { uniq_influencer_code_per_restaurant: { restaurantId, code } },
+  const existing = await prisma.collaboration.findUnique({
+    where: { uniq_collaboration_code_per_restaurant: { restaurantId, code } },
     select: { id: true },
   });
-  if (existing && existing.id !== excludeInfluencerId) {
+  if (existing && existing.id !== excludeCollaborationId) {
     throw new HttpError(409, 'CODE_TAKEN', 'Ce code promo est déjà utilisé');
   }
 }
@@ -36,24 +37,22 @@ export async function assertCodeAvailable(
 export async function resolvePromoCode(
   restaurantId: string,
   requested?: string,
-  excludeInfluencerId?: string,
+  excludeCollaborationId?: string,
 ): Promise<string> {
   if (requested !== undefined && requested !== '') {
     const code = promoCodeInput.parse(requested);
-    await assertCodeAvailable(restaurantId, code, excludeInfluencerId);
+    await assertCodeAvailable(restaurantId, code, excludeCollaborationId);
     return code;
   }
   return generateUniqueCode(restaurantId);
 }
 
-/**
- * Génère un code unique pour ce restaurant (retry si collision).
- */
+/** Génère un code unique pour ce restaurant (retry si collision). */
 export async function generateUniqueCode(restaurantId: string, maxAttempts = 8): Promise<string> {
   for (let i = 0; i < maxAttempts; i++) {
     const candidate = generatePromoCode();
-    const exists = await prisma.influencer.findUnique({
-      where: { uniq_influencer_code_per_restaurant: { restaurantId, code: candidate } },
+    const exists = await prisma.collaboration.findUnique({
+      where: { uniq_collaboration_code_per_restaurant: { restaurantId, code: candidate } },
       select: { id: true },
     });
     if (!exists) return candidate;

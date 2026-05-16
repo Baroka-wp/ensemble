@@ -46,25 +46,43 @@ publicRouter.post('/scan', scanRateLimit, async (req, res) => {
             throw new HttpError(404, 'RESTAURANT_NOT_FOUND', 'Restaurant introuvable');
           }
 
-          const influencers = await tx.$queryRaw<
+          // Le code identifie une collaboration ACTIVE du restaurant (jointure inf pour le nom).
+          const collabs = await tx.$queryRaw<
             {
-              id: string;
-              display_name: string;
+              collab_id: string;
               code: string;
               reward_per_scan_xof: number;
               discount_percent: number;
+              influencer_id: string;
+              influencer_display_name: string;
+              influencer_active: boolean;
             }[]
           >(
-            Prisma.sql`SELECT id, display_name, code, reward_per_scan_xof, discount_percent
-                       FROM influencers
-                       WHERE restaurant_id = ${restaurant.id}::uuid
-                         AND upper(code) = ${code}
-                         AND is_active = true
-                       FOR UPDATE`,
+            Prisma.sql`SELECT c.id AS collab_id,
+                              c.code,
+                              c.reward_per_scan_xof,
+                              c.discount_percent,
+                              i.id AS influencer_id,
+                              i.display_name AS influencer_display_name,
+                              i.is_active AS influencer_active
+                       FROM collaborations c
+                       JOIN influencers i ON i.id = c.influencer_id
+                       WHERE c.restaurant_id = ${restaurant.id}::uuid
+                         AND upper(c.code) = ${code}
+                         AND c.status = 'active'
+                       FOR UPDATE OF c`,
           );
-          const influencer = influencers[0];
-          if (!influencer) {
+          const collab = collabs[0];
+          if (!collab) {
             throw new HttpError(404, 'INVALID_CODE', 'Code influenceur invalide');
+          }
+          if (!collab.influencer_active) {
+            throw new HttpError(403, 'INFLUENCER_INACTIVE', 'Ce code n’est plus actif');
+          }
+          // discount + reward sont nullable dans le schema mais NOT NULL pour une collab active
+          // (fixés à l'acceptation). Garde-fou défensif :
+          if (collab.discount_percent == null || collab.reward_per_scan_xof == null) {
+            throw new HttpError(500, 'COLLABORATION_INCOMPLETE', 'Collaboration mal configurée');
           }
 
           const blocks = await tx.$queryRaw<{ id: string }[]>(
@@ -84,10 +102,10 @@ publicRouter.post('/scan', scanRateLimit, async (req, res) => {
           const scan = await tx.scan.create({
             data: {
               restaurantId: restaurant.id,
-              influencerId: influencer.id,
+              collaborationId: collab.collab_id,
               fingerprintHash,
-              rewardXof: influencer.reward_per_scan_xof,
-              discountPercent: influencer.discount_percent,
+              rewardXof: collab.reward_per_scan_xof,
+              discountPercent: collab.discount_percent,
             },
           });
 
@@ -115,18 +133,20 @@ publicRouter.post('/scan', scanRateLimit, async (req, res) => {
           return {
             ticket: {
               code: created.ticketCode,
-              discountPercent: influencer.discount_percent,
+              discountPercent: collab.discount_percent,
               restaurantName: restaurant.name,
               expiresAt: created.expiresAt.toISOString(),
               createdAt: created.createdAt.toISOString(),
             } satisfies TicketPublic,
             event: {
               scanId: scan.id,
-              influencerId: influencer.id,
-              influencerName: influencer.display_name,
-              influencerCode: influencer.code,
-              discountPercent: influencer.discount_percent,
-              rewardXof: influencer.reward_per_scan_xof,
+              collaborationId: collab.collab_id,
+              influencerId: collab.influencer_id,
+              influencerName: collab.influencer_display_name,
+              influencerCode: collab.code,
+              restaurantName: restaurant.name,
+              discountPercent: collab.discount_percent,
+              rewardXof: collab.reward_per_scan_xof,
               ticketCode: created.ticketCode,
               createdAt: scan.createdAt.toISOString(),
             } satisfies ScanCreatedEvent,

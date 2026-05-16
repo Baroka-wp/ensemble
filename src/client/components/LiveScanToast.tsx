@@ -53,7 +53,9 @@ export function LiveScanToast({
             Nouveau scan · {visible.influencerName} · −{visible.discountPercent}% · {formatFCFA(visible.rewardXof)}
           </>
         ) : (
-          <>Nouveau scan · +{formatFCFA(visible.rewardXof)}</>
+          <>
+            Nouveau scan · {visible.restaurantName} · +{formatFCFA(visible.rewardXof)}
+          </>
         )}
       </span>
     </div>

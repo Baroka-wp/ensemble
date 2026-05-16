@@ -41,6 +41,8 @@ adminStatsRouter.get('/stats', async (req, res) => {
   `);
   const agg = aggRows[0]!;
 
+  // Top influenceurs : on liste les collabs de ce restaurant avec leurs scans cumulés.
+  // L'`id` retourné est celui de l'influenceur (pas de la collab) — c'est ce qui sert au front.
   const top = await prisma.$queryRaw<
     {
       id: string;
@@ -50,13 +52,14 @@ adminStatsRouter.get('/stats', async (req, res) => {
       earnings_xof: bigint | null;
     }[]
   >(Prisma.sql`
-    SELECT i.id, i.display_name, i.code,
+    SELECT i.id, i.display_name, c.code,
            COUNT(s.id)                     AS scans_count,
            COALESCE(SUM(s.reward_xof), 0)  AS earnings_xof
-    FROM influencers i
-    LEFT JOIN scans s ON s.influencer_id = i.id
-    WHERE i.restaurant_id = ${restaurantId}::uuid
-    GROUP BY i.id, i.display_name, i.code
+    FROM collaborations c
+    JOIN influencers i ON i.id = c.influencer_id
+    LEFT JOIN scans s ON s.collaboration_id = c.id
+    WHERE c.restaurant_id = ${restaurantId}::uuid
+    GROUP BY i.id, i.display_name, c.code
     ORDER BY earnings_xof DESC, scans_count DESC
     LIMIT 5
   `);
@@ -89,7 +92,7 @@ adminStatsRouter.get('/scans', async (req, res) => {
 
   const where = {
     restaurantId,
-    ...(q.influencerId ? { influencerId: q.influencerId } : {}),
+    ...(q.influencerId ? { collaboration: { influencerId: q.influencerId } } : {}),
     ...(q.from || q.to
       ? {
           createdAt: {
@@ -108,7 +111,12 @@ adminStatsRouter.get('/scans', async (req, res) => {
       skip: (q.page - 1) * q.limit,
       take: q.limit,
       include: {
-        influencer: { select: { id: true, displayName: true, code: true } },
+        collaboration: {
+          select: {
+            code: true,
+            influencer: { select: { id: true, displayName: true } },
+          },
+        },
         ticket: { select: { ticketCode: true } },
       },
     }),
@@ -119,7 +127,11 @@ adminStatsRouter.get('/scans', async (req, res) => {
     createdAt: s.createdAt.toISOString(),
     rewardXof: s.rewardXof,
     discountPercent: s.discountPercent,
-    influencer: s.influencer,
+    influencer: {
+      id: s.collaboration.influencer.id,
+      displayName: s.collaboration.influencer.displayName,
+      code: s.collaboration.code,
+    },
     ticketCode: s.ticket?.ticketCode ?? null,
   }));
 

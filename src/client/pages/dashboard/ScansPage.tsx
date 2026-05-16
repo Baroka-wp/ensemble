@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
 import type { ScansPage as ScansPageData } from '../../../shared/schemas/admin';
-import type { InfluencerPublic } from '../../../shared/schemas/influencer';
 import { formatFCFA } from '../../../shared/schemas/influencer';
+import type { CollaborationForRestaurant } from '../../../shared/schemas/collaboration';
 
 function formatDateTime(iso: string) {
   return new Intl.DateTimeFormat('fr-FR', {
@@ -24,10 +23,23 @@ export function ScansPage() {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
 
-  const influencersQuery = useQuery({
-    queryKey: ['influencers'],
-    queryFn: () => apiFetch<{ influencers: InfluencerPublic[] }>('/admin/influencers', { auth: true }),
+  const collabsQuery = useQuery({
+    queryKey: ['admin', 'collaborations'],
+    queryFn: () =>
+      apiFetch<{ collaborations: CollaborationForRestaurant[] }>('/admin/collaborations', {
+        auth: true,
+      }),
   });
+  const collabs = collabsQuery.data?.collaborations ?? [];
+  // Liste des influenceurs distincts qui ont au moins une collab (active ou pas).
+  const influencerOptions = Array.from(
+    new Map(
+      collabs.map((c) => [
+        c.influencer.id,
+        { id: c.influencer.id, displayName: c.influencer.displayName, code: c.code },
+      ]),
+    ).values(),
+  );
 
   const params = new URLSearchParams({ page: String(page), limit: String(LIMIT) });
   if (influencerId) params.set('influencerId', influencerId);
@@ -53,9 +65,9 @@ export function ScansPage() {
             className="w-full px-3 py-2 bg-white border border-deepspace/10 rounded-lg text-sm font-serif"
           >
             <option value="">Tous</option>
-            {influencersQuery.data?.influencers.map((i) => (
+            {influencerOptions.map((i) => (
               <option key={i.id} value={i.id}>
-                {i.displayName} ({i.code})
+                {i.displayName}
               </option>
             ))}
           </select>
@@ -113,12 +125,7 @@ export function ScansPage() {
                       {formatDateTime(s.createdAt)}
                     </td>
                     <td className="px-4 py-3">
-                      <Link
-                        to={`/dashboard/influencers/${s.influencer.id}`}
-                        className="hover:underline underline-offset-4"
-                      >
-                        {s.influencer.displayName}
-                      </Link>
+                      <span className="text-espresso">{s.influencer.displayName}</span>
                       <span className="ml-2 text-xs font-mono text-warmgray">{s.influencer.code}</span>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs">{s.ticketCode ?? '—'}</td>

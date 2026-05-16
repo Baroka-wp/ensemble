@@ -1,26 +1,31 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { apiFetch, ApiError } from '../../lib/api';
 import { useInfluencerAuth } from '../../lib/influencerAuth';
-import { influencerLoginInput, type InfluencerAuthResponse } from '../../../shared/schemas/influencerAuth';
+import {
+  influencerRegisterInput,
+  type InfluencerAuthResponse,
+} from '../../../shared/schemas/influencerAuth';
 import { AuthLayout, Field, TextInput, PrimaryButton, ErrorBanner } from '../auth/AuthLayout';
 
-export function InfluencerLoginPage() {
+export function InfluencerRegisterPage() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useInfluencerAuth();
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
-    mutationFn: (input: { email: string; password: string }) =>
-      apiFetch<InfluencerAuthResponse>('/influencer-auth/login', { method: 'POST', body: input }),
+    mutationFn: (input: { displayName: string; email: string; password: string }) =>
+      apiFetch<InfluencerAuthResponse>('/influencer-auth/register', {
+        method: 'POST',
+        body: input,
+      }),
     onSuccess: (data) => {
       login(data);
-      const redirect = (location.state as { from?: string } | null)?.from ?? '/i';
-      navigate(redirect === '/i/login' ? '/i' : redirect, { replace: true });
+      navigate('/i', { replace: true });
     },
     onError: (err) => setError(err instanceof ApiError ? err.message : 'Erreur inattendue'),
   });
@@ -28,7 +33,7 @@ export function InfluencerLoginPage() {
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    const parsed = influencerLoginInput.safeParse({ email, password });
+    const parsed = influencerRegisterInput.safeParse({ displayName, email, password });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? 'Saisie invalide');
       return;
@@ -38,22 +43,32 @@ export function InfluencerLoginPage() {
 
   return (
     <AuthLayout
-      title="Espace influenceur"
-      subtitle="Connectez-vous pour gérer vos collaborations."
+      title="Devenez influenceur"
+      subtitle="Quelques secondes pour créer votre compte et trouver vos premiers restaurants."
       footer={
         <>
-          Pas encore de compte ?{' '}
+          Déjà inscrit ?{' '}
           <Link
-            to="/i/register"
+            to="/i/login"
             className="text-orange hover:text-orange-dark underline underline-offset-4 transition-colors"
           >
-            Créer un compte
+            Se connecter
           </Link>
         </>
       }
     >
       <form onSubmit={onSubmit} noValidate>
         {error && <ErrorBanner message={error} />}
+        <Field label="Votre nom">
+          <TextInput
+            type="text"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            placeholder="Marie Dupont"
+            autoComplete="name"
+            required
+          />
+        </Field>
         <Field label="Email">
           <TextInput
             type="email"
@@ -63,17 +78,17 @@ export function InfluencerLoginPage() {
             required
           />
         </Field>
-        <Field label="Mot de passe">
+        <Field label="Mot de passe" hint="8 caractères minimum.">
           <TextInput
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </Field>
         <PrimaryButton type="submit" disabled={mutation.isPending}>
-          {mutation.isPending ? 'Connexion…' : 'Se connecter'}
+          {mutation.isPending ? 'Création…' : 'Créer mon compte'}
         </PrimaryButton>
       </form>
     </AuthLayout>

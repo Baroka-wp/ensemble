@@ -7,32 +7,61 @@ import { HttpError } from '../middleware/errorHandler.js';
 import { requireInfluencerAuth } from '../middleware/requireAuth.js';
 import {
   influencerLoginInput,
-  updateInfluencerCodeInput,
+  influencerRegisterInput,
+  updateInfluencerProfileInput,
   type InfluencerAuthResponse,
   type InfluencerSession,
 } from '../../shared/schemas/influencerAuth.js';
-import { assertCodeAvailable } from '../lib/promoCode.js';
-import type { InfluencerStats, RecentScan } from '../../shared/schemas/stats.js';
 
 export const influencerAuthRouter = Router();
 
+const BCRYPT_COST = 12;
+
 async function loadSession(influencerId: string): Promise<InfluencerSession | null> {
-  const inf = await prisma.influencer.findUnique({
-    where: { id: influencerId },
-    include: { restaurant: { select: { name: true } } },
-  });
+  const inf = await prisma.influencer.findUnique({ where: { id: influencerId } });
   if (!inf) return null;
   return {
     id: inf.id,
     displayName: inf.displayName,
-    code: inf.code,
     email: inf.email,
-    restaurantName: inf.restaurant.name,
-    discountPercent: inf.discountPercent,
-    rewardPerScanXof: inf.rewardPerScanXof,
     isActive: inf.isActive,
   };
 }
+
+function isUniqueEmailViolation(err: unknown): boolean {
+  if (!(err instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  if (err.code !== 'P2002') return false;
+  const target = (err.meta as { target?: string[] } | undefined)?.target;
+  return Array.isArray(target) ? target.includes('email') : true;
+}
+
+influencerAuthRouter.post('/register', async (req, res) => {
+  const { email, password, displayName } = influencerRegisterInput.parse(req.body);
+
+  const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+
+  try {
+    const inf = await prisma.influencer.create({
+      data: { email, passwordHash, displayName },
+    });
+    const token = signToken({ sub: inf.id, email: inf.email, type: 'influencer' });
+    const body: InfluencerAuthResponse = {
+      token,
+      influencer: {
+        id: inf.id,
+        displayName: inf.displayName,
+        email: inf.email,
+        isActive: inf.isActive,
+      },
+    };
+    res.status(201).json(body);
+  } catch (err) {
+    if (isUniqueEmailViolation(err)) {
+      throw new HttpError(409, 'EMAIL_TAKEN', 'Un compte existe déjà avec cet email');
+    }
+    throw err;
+  }
+});
 
 influencerAuthRouter.post('/login', async (req, res) => {
   const { email, password } = influencerLoginInput.parse(req.body);
@@ -50,11 +79,15 @@ influencerAuthRouter.post('/login', async (req, res) => {
   }
 
   const token = signToken({ sub: inf.id, email: inf.email, type: 'influencer' });
-  const session = await loadSession(inf.id);
-  if (!session) {
-    throw new HttpError(500, 'INTERNAL_ERROR', 'Erreur serveur');
-  }
-  const body: InfluencerAuthResponse = { token, influencer: session };
+  const body: InfluencerAuthResponse = {
+    token,
+    influencer: {
+      id: inf.id,
+      displayName: inf.displayName,
+      email: inf.email,
+      isActive: inf.isActive,
+    },
+  };
   res.json(body);
 });
 
@@ -66,106 +99,29 @@ influencerAuthRouter.get('/me', requireInfluencerAuth, async (req, res) => {
   res.json({ influencer: session });
 });
 
-influencerAuthRouter.get('/stats', requireInfluencerAuth, async (req, res) => {
-  const influencer = await prisma.influencer.findUnique({
-    where: { id: req.influencerId! },
-    select: {
-      id: true,
-      displayName: true,
-      code: true,
-      discountPercent: true,
-      rewardPerScanXof: true,
-    },
-  });
-  if (!influencer) {
-    throw new HttpError(401, 'UNAUTHORIZED', 'Compte introuvable');
+influencerAuthRouter.patch('/me', requireInfluencerAuth, async (req, res) => {
+  const input = updateInfluencerProfileInput.parse(req.body);
+
+  const data: Prisma.InfluencerUpdateInput = {};
+  if (input.displayName !== undefined) data.displayName = input.displayName;
+  if (input.email !== undefined) data.email = input.email;
+  if (input.password !== undefined) {
+    data.passwordHash = await bcrypt.hash(input.password, BCRYPT_COST);
   }
 
-  const aggRows = await prisma.$queryRaw<
-    {
-      scans_count: bigint;
-      earnings_xof: bigint | null;
-      scans_today: bigint;
-      earnings_today_xof: bigint | null;
-      scans_7d: bigint;
-      earnings_7d_xof: bigint | null;
-      scans_30d: bigint;
-      earnings_30d_xof: bigint | null;
-    }[]
-  >(Prisma.sql`
-    SELECT
-      COUNT(*)                                                              AS scans_count,
-      COALESCE(SUM(reward_xof), 0)                                          AS earnings_xof,
-      COUNT(*) FILTER (WHERE created_at >= date_trunc('day', now()))        AS scans_today,
-      COALESCE(SUM(reward_xof) FILTER (WHERE created_at >= date_trunc('day', now())), 0) AS earnings_today_xof,
-      COUNT(*) FILTER (WHERE created_at >= now() - interval '7 days')       AS scans_7d,
-      COALESCE(SUM(reward_xof) FILTER (WHERE created_at >= now() - interval '7 days'), 0)  AS earnings_7d_xof,
-      COUNT(*) FILTER (WHERE created_at >= now() - interval '30 days')      AS scans_30d,
-      COALESCE(SUM(reward_xof) FILTER (WHERE created_at >= now() - interval '30 days'), 0) AS earnings_30d_xof
-    FROM scans
-    WHERE influencer_id = ${influencer.id}::uuid
-  `);
-  const agg = aggRows[0]!;
-
-  const recent = await prisma.scan.findMany({
-    where: { influencerId: influencer.id },
-    orderBy: { createdAt: 'desc' },
-    take: 20,
-    select: { id: true, createdAt: true, rewardXof: true },
-  });
-
-  const recentScans: RecentScan[] = recent.map((s) => ({
-    id: s.id,
-    createdAt: s.createdAt.toISOString(),
-    rewardXof: s.rewardXof,
-  }));
-
-  const body: InfluencerStats = {
-    displayName: influencer.displayName,
-    code: influencer.code,
-    discountPercent: influencer.discountPercent,
-    rewardPerScan: { amount: influencer.rewardPerScanXof, currency: 'XOF' },
-    totals: {
-      scansCount: Number(agg.scans_count),
-      earningsXof: Number(agg.earnings_xof ?? 0),
-      scansToday: Number(agg.scans_today),
-      earningsTodayXof: Number(agg.earnings_today_xof ?? 0),
-      scans7d: Number(agg.scans_7d),
-      earnings7dXof: Number(agg.earnings_7d_xof ?? 0),
-      scans30d: Number(agg.scans_30d),
-      earnings30dXof: Number(agg.earnings_30d_xof ?? 0),
-    },
-    recentScans,
-  };
-  res.json(body);
-});
-
-influencerAuthRouter.patch('/code', requireInfluencerAuth, async (req, res) => {
-  const { code } = updateInfluencerCodeInput.parse(req.body);
-
-  const inf = await prisma.influencer.findUnique({
-    where: { id: req.influencerId! },
-    select: { id: true, restaurantId: true, isActive: true, code: true },
-  });
-  if (!inf) {
-    throw new HttpError(401, 'UNAUTHORIZED', 'Compte introuvable');
-  }
-  if (!inf.isActive) {
-    throw new HttpError(403, 'INFLUENCER_INACTIVE', 'Compte désactivé');
-  }
-  if (code === inf.code) {
-    const session = await loadSession(inf.id);
-    res.json({ influencer: session });
-    return;
+  try {
+    await prisma.influencer.update({
+      where: { id: req.influencerId! },
+      data,
+    });
+  } catch (err) {
+    if (isUniqueEmailViolation(err)) {
+      throw new HttpError(409, 'EMAIL_TAKEN', 'Cet email est déjà utilisé');
+    }
+    throw err;
   }
 
-  await assertCodeAvailable(inf.restaurantId, code, inf.id);
-  await prisma.influencer.update({
-    where: { id: inf.id },
-    data: { code },
-  });
-
-  const session = await loadSession(inf.id);
+  const session = await loadSession(req.influencerId!);
   if (!session) {
     throw new HttpError(500, 'INTERNAL_ERROR', 'Erreur serveur');
   }

@@ -50,7 +50,7 @@ export function DashboardHome() {
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-8">
-            <QuickTile to="/dashboard/influencers" icon={<IconUsers className="h-5 w-5" />} label="Influenceurs" />
+            <QuickTile to="/dashboard/collaborations" icon={<IconUsers className="h-5 w-5" />} label="Collaborations" />
             <QuickTile to="/dashboard/scans" icon={<IconActivity className="h-5 w-5" />} label="Scans" />
             <QuickTile to="/dashboard/qr" icon={<IconQr className="h-5 w-5" />} label="QR" />
           </div>
@@ -63,7 +63,7 @@ export function DashboardHome() {
                   <li key={inf.id} className="px-4 py-3 flex items-center gap-3 text-sm">
                     <span className="font-mono text-xs text-terracotta w-4 text-right tabular-nums">{idx + 1}</span>
                     <Link
-                      to={`/dashboard/influencers/${inf.id}`}
+                      to="/dashboard/collaborations"
                       className="flex-1 min-w-0 truncate text-espresso hover:text-terracotta transition-colors"
                     >
                       {inf.displayName}

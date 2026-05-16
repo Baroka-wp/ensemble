@@ -2,7 +2,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { useInfluencerAuth } from '../../lib/influencerAuth';
 import { InfluencerDashboardProvider, useInfluencerDashboard } from '../../lib/influencerDashboard';
 import { DashboardShell } from '../../components/dashboard/DashboardShell';
-import { IconActivity, IconChart, IconTag } from '../../components/dashboard/icons';
+import { IconActivity, IconChart, IconCompass, IconTag } from '../../components/dashboard/icons';
 import { LiveBadge } from '../../components/LiveScanToast';
 
 const iconClass = 'h-[18px] w-[18px]';
@@ -19,14 +19,15 @@ function InfluencerShell() {
       variant="influencer"
       headerExtra={<LiveBadge connected={connected} />}
       navItems={[
-        { to: '/i/code', label: 'Mon code', icon: <IconTag className={iconClass} /> },
+        { to: '/i/collaborations', label: 'Collaborations', icon: <IconTag className={iconClass} /> },
+        { to: '/i/discover', label: 'Découvrir', icon: <IconCompass className={iconClass} /> },
         { to: '/i/stats', label: 'Statistiques', icon: <IconChart className={iconClass} /> },
         { to: '/i/scans', label: 'Scans', icon: <IconActivity className={iconClass} /> },
       ]}
       footer={
         <div className="space-y-1">
           <p className="truncate font-medium text-cream/90">{influencer.displayName}</p>
-          <p className="truncate text-[11px] text-cream/45">{influencer.restaurantName}</p>
+          <p className="truncate text-[11px] text-cream/45">{influencer.email}</p>
         </div>
       }
       onLogout={() => {

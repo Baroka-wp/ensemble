@@ -5,15 +5,18 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { DashboardLayout } from './pages/dashboard/DashboardLayout';
 import { DashboardHome } from './pages/dashboard/DashboardHome';
-import { InfluencersListPage } from './pages/dashboard/influencers/InfluencersListPage';
-import { InfluencerNewPage } from './pages/dashboard/influencers/InfluencerNewPage';
-import { InfluencerEditPage } from './pages/dashboard/influencers/InfluencerEditPage';
+import { CollaborationsListPage } from './pages/dashboard/collaborations/CollaborationsListPage';
+import { CollaborationQuickCreatePage } from './pages/dashboard/collaborations/CollaborationQuickCreatePage';
+import { CollaborationEditPage } from './pages/dashboard/collaborations/CollaborationEditPage';
 import { ScansPage } from './pages/dashboard/ScansPage';
 import { QrPage } from './pages/dashboard/QrPage';
 import { ScanPage } from './pages/public/ScanPage';
+import { ChooseSpacePage } from './pages/public/ChooseSpacePage';
 import { InfluencerLoginPage } from './pages/public/InfluencerLoginPage';
+import { InfluencerRegisterPage } from './pages/public/InfluencerRegisterPage';
 import { InfluencerDashboardLayout } from './pages/public/InfluencerDashboardLayout';
-import { InfluencerCodePage } from './pages/public/influencer/InfluencerCodePage';
+import { InfluencerCollaborationsPage } from './pages/public/influencer/InfluencerCollaborationsPage';
+import { InfluencerDiscoverPage } from './pages/public/influencer/InfluencerDiscoverPage';
 import { InfluencerStatsPage } from './pages/public/influencer/InfluencerStatsPage';
 import { InfluencerScansPage } from './pages/public/influencer/InfluencerScansPage';
 import { AuthGuard } from './lib/auth';
@@ -47,6 +50,8 @@ export function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/connexion" element={<ChooseSpacePage intent="login" />} />
+      <Route path="/demarrer" element={<ChooseSpacePage intent="register" />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
@@ -59,9 +64,9 @@ export function App() {
         }
       >
         <Route index element={<DashboardHome />} />
-        <Route path="influencers" element={<InfluencersListPage />} />
-        <Route path="influencers/new" element={<InfluencerNewPage />} />
-        <Route path="influencers/:id" element={<InfluencerEditPage />} />
+        <Route path="collaborations" element={<CollaborationsListPage />} />
+        <Route path="collaborations/new" element={<CollaborationQuickCreatePage />} />
+        <Route path="collaborations/:id" element={<CollaborationEditPage />} />
         <Route path="scans" element={<ScansPage />} />
         <Route path="qr" element={<QrPage />} />
       </Route>
@@ -69,6 +74,7 @@ export function App() {
       <Route path="/s/:slug" element={<ScanPage />} />
 
       <Route path="/i/login" element={<InfluencerLoginPage />} />
+      <Route path="/i/register" element={<InfluencerRegisterPage />} />
       <Route
         path="/i"
         element={
@@ -77,8 +83,9 @@ export function App() {
           </InfluencerAuthGuard>
         }
       >
-        <Route index element={<Navigate to="/i/code" replace />} />
-        <Route path="code" element={<InfluencerCodePage />} />
+        <Route index element={<Navigate to="/i/collaborations" replace />} />
+        <Route path="collaborations" element={<InfluencerCollaborationsPage />} />
+        <Route path="discover" element={<InfluencerDiscoverPage />} />
         <Route path="stats" element={<InfluencerStatsPage />} />
         <Route path="scans" element={<InfluencerScansPage />} />
       </Route>

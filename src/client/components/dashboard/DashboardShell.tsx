@@ -9,6 +9,8 @@ export type DashboardNavItem = {
   label: string;
   icon: ReactNode;
   end?: boolean;
+  /** Petit compteur affiché à droite (ex. nb de demandes en attente). Caché si 0 ou undefined. */
+  badge?: number;
 };
 
 type DashboardShellProps = {
@@ -124,6 +126,7 @@ function SidebarLink({
   label,
   icon,
   end,
+  badge,
   onNavigate,
 }: DashboardNavItem & { onNavigate?: () => void }) {
   return (
@@ -141,7 +144,12 @@ function SidebarLink({
       }
     >
       <span className="shrink-0 opacity-90 [&>svg]:h-[18px] [&>svg]:w-[18px]">{icon}</span>
-      <span className="truncate">{label}</span>
+      <span className="truncate flex-1">{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="shrink-0 inline-flex items-center justify-center text-[10px] min-w-[18px] px-1.5 py-0.5 rounded-full bg-orange text-cream font-medium">
+          {badge}
+        </span>
+      )}
     </NavLink>
   );
 }

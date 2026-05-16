@@ -29,12 +29,14 @@ export const restaurantPublicInfo = z.object({
 });
 export type RestaurantPublicInfo = z.infer<typeof restaurantPublicInfo>;
 
-// Payload Socket.io 'scan:created' (§8 phase 1)
+// Payload Socket.io 'scan:created'
 export interface ScanCreatedEvent {
   scanId: string;
+  collaborationId: string;
   influencerId: string;
   influencerName: string;
   influencerCode: string;
+  restaurantName: string;
   discountPercent: number;
   rewardXof: number;
   ticketCode: string;
