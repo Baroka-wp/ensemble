@@ -2,13 +2,17 @@
 FROM node:20-bookworm-slim AS build
 WORKDIR /app
 
+# Coolify injecte souvent NODE_ENV=production au build : il faut vite/tsc (devDependencies).
+ENV NODE_ENV=development
+ENV NPM_CONFIG_PRODUCTION=false
+
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
 COPY prisma ./prisma
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY tsconfig.json tsconfig.server.json vite.config.ts postcss.config.js tailwind.config.js ./
 COPY src ./src
