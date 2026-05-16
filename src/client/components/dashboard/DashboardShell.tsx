@@ -36,7 +36,11 @@ export function DashboardShell({
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-[220px] shrink-0 flex-col bg-espresso text-cream/90 border-r border-black/10">
         <div className="px-5 py-5 border-b border-white/8">
-          <EnsembleLogo to={variant === 'restaurant' ? '/dashboard' : '/i'} variant="light" />
+          <EnsembleLogo
+            to={variant === 'restaurant' ? '/dashboard' : '/i'}
+            variant="light"
+            markClassName="h-5 w-5"
+          />
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {navItems.map((item) => (
@@ -62,7 +66,11 @@ export function DashboardShell({
         ].join(' ')}
       >
         <div className="px-5 py-5 border-b border-white/8 flex items-center justify-between">
-          <EnsembleLogo to={variant === 'restaurant' ? '/dashboard' : '/i'} variant="light" />
+          <EnsembleLogo
+            to={variant === 'restaurant' ? '/dashboard' : '/i'}
+            variant="light"
+            markClassName="h-5 w-5"
+          />
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
