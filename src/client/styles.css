@@ -4,6 +4,29 @@
 
 html, body, #root { height: 100%; }
 
+html {
+  overflow-x: clip;
+}
+
+.orbit-visual {
+  --orbit-outer-r: 6rem;
+  --orbit-inner-r: 3.75rem;
+}
+
+@media (min-width: 640px) {
+  .orbit-visual {
+    --orbit-outer-r: 8rem;
+    --orbit-inner-r: 5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .orbit-visual {
+    --orbit-outer-r: 9.25rem;
+    --orbit-inner-r: 5.75rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-orbit-outer,
   .animate-orbit-inner,

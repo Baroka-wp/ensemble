@@ -96,7 +96,7 @@ function OrbitIcon({
       style={{ animationDelay: orbitDelay(icon.angle, duration) }}
     >
       <div
-        className="absolute flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border border-white/90 bg-white shadow-lg shadow-espresso/10"
+        className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border border-white/90 bg-white shadow-lg shadow-espresso/10 sm:h-11 sm:w-11 sm:rounded-2xl [&_svg]:h-4 [&_svg]:w-4 sm:[&_svg]:h-5 sm:[&_svg]:w-5"
         title={icon.label}
       >
         <span className={icon.color}>{icon.path}</span>
@@ -107,7 +107,10 @@ function OrbitIcon({
 
 export function SocialOrbitVisual() {
   return (
-    <div className="relative mx-auto h-[min(380px,85vw)] w-[min(380px,85vw)] max-w-[420px]" aria-hidden>
+    <div
+      className="orbit-visual relative mx-auto h-[min(300px,78vw)] w-[min(300px,78vw)] max-w-[420px] sm:h-[min(340px,82vw)] sm:w-[min(340px,82vw)] md:h-[min(380px,85vw)] md:w-[min(380px,85vw)]"
+      aria-hidden
+    >
       <div className="absolute inset-6 rounded-full bg-gradient-to-br from-orange/25 via-terracotta/10 to-transparent blur-2xl animate-shimmer" />
       <div className="absolute inset-[10%] rounded-full border border-dashed border-orange/30 animate-spin-slow" />
       <div className="absolute inset-[22%] rounded-full border border-sand/80 bg-white/40" />
@@ -119,12 +122,12 @@ export function SocialOrbitVisual() {
         <OrbitIcon key={icon.name} icon={icon} variant="inner" />
       ))}
 
-      <div className="absolute left-1/2 top-1/2 z-10 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-gradient-to-br from-white to-linen shadow-[0_20px_60px_-20px_rgba(249,115,22,0.5)] md:h-32 md:w-32">
+      <div className="absolute left-1/2 top-1/2 z-10 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white bg-gradient-to-br from-white to-linen shadow-[0_20px_60px_-20px_rgba(249,115,22,0.5)] sm:h-28 sm:w-28 md:h-32 md:w-32">
         <span className="absolute inset-0 rounded-full bg-orange/15 animate-ping" />
-        <EnsembleMark className="relative h-14 w-14 text-espresso md:h-16 md:w-16" />
+        <EnsembleMark className="relative h-12 w-12 text-espresso sm:h-14 sm:w-14 md:h-16 md:w-16" />
       </div>
 
-      <p className="absolute bottom-0 left-1/2 w-full -translate-x-1/2 text-center text-[10px] uppercase tracking-[0.2em] text-warmgray">
+      <p className="absolute bottom-0 left-1/2 w-full max-w-[14rem] -translate-x-1/2 px-2 text-center text-[9px] uppercase leading-snug tracking-[0.18em] text-warmgray sm:max-w-none sm:text-[10px] sm:tracking-[0.2em]">
         Vos créateurs, tous les réseaux
       </p>
     </div>

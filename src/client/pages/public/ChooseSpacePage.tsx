@@ -67,7 +67,7 @@ function SpaceOption({
     <Link
       to={to}
       className={[
-        'group flex flex-col justify-between rounded-3xl border p-7 md:p-8 min-h-[200px] transition-all duration-300',
+        'group flex flex-col justify-between rounded-3xl border p-6 sm:p-7 md:p-8 min-h-[180px] sm:min-h-[200px] transition-all duration-300',
         'hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange/40',
         isRestaurant
           ? 'border-espresso bg-espresso text-cream shadow-lg shadow-espresso/20 hover:shadow-xl'
@@ -114,7 +114,7 @@ export function ChooseSpacePage({ intent }: { intent: Intent }) {
   return (
     <div className="min-h-screen bg-cream text-espresso">
       <header className="border-b border-sand/50 bg-cream/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 md:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4 md:px-8">
           <Link to="/" className="inline-flex items-center gap-2.5" aria-label="ensemble — accueil">
             <EnsembleMark className="h-5 w-5 shrink-0" />
             <span className="text-sm font-light tracking-[0.2em] uppercase">ensemble</span>
@@ -128,13 +128,13 @@ export function ChooseSpacePage({ intent }: { intent: Intent }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-5 py-12 md:px-8 md:py-16">
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-5 sm:py-12 md:px-8 md:py-16">
         <div className="text-center">
-          <h1 className="font-sans text-3xl font-thin tracking-wide md:text-4xl">{title}</h1>
+          <h1 className="font-sans text-2xl font-thin tracking-wide sm:text-3xl md:text-4xl">{title}</h1>
           <p className="mt-3 font-serif text-warmgray">{subtitle}</p>
         </div>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2">
           <SpaceOption
             to={restaurant.to}
             eyebrow="Gérants & équipes"

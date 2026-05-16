@@ -43,7 +43,7 @@ function PromiseCard({
   return (
     <article
       className={[
-        'rounded-3xl p-8 md:p-10 lg:p-12',
+        'rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12',
         isDark
           ? 'bg-espresso text-cream shadow-xl shadow-espresso/20'
           : 'border border-sand/80 bg-white/80 text-espresso shadow-lg shadow-orange/5 backdrop-blur-sm',
@@ -85,11 +85,11 @@ function PromiseCard({
 
 export function PromisesSection() {
   return (
-    <section id="promesses" className="scroll-mt-24 bg-gradient-to-b from-linen to-cream py-20 md:py-28">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section id="promesses" className="scroll-mt-20 bg-gradient-to-b from-linen to-cream py-16 sm:scroll-mt-24 sm:py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-5 md:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-[10px] uppercase tracking-[0.25em] text-warmgray">Promesses produit</p>
-          <h2 className="mt-3 font-sans text-3xl font-thin tracking-wide text-espresso md:text-4xl">
+          <h2 className="mt-3 font-sans text-2xl font-thin tracking-wide text-espresso sm:text-3xl md:text-4xl">
             Deux espaces, une même mécanique fluide.
           </h2>
         </div>

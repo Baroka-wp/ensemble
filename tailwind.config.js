@@ -40,12 +40,12 @@ export default {
       },
       keyframes: {
         orbitOuter: {
-          from: { transform: 'rotate(0deg) translateX(9.25rem) rotate(0deg)' },
-          to: { transform: 'rotate(360deg) translateX(9.25rem) rotate(-360deg)' },
+          from: { transform: 'rotate(0deg) translateX(var(--orbit-outer-r, 9.25rem)) rotate(0deg)' },
+          to: { transform: 'rotate(360deg) translateX(var(--orbit-outer-r, 9.25rem)) rotate(-360deg)' },
         },
         orbitInner: {
-          from: { transform: 'rotate(0deg) translateX(5.75rem) rotate(0deg)' },
-          to: { transform: 'rotate(360deg) translateX(5.75rem) rotate(-360deg)' },
+          from: { transform: 'rotate(0deg) translateX(var(--orbit-inner-r, 5.75rem)) rotate(0deg)' },
+          to: { transform: 'rotate(360deg) translateX(var(--orbit-inner-r, 5.75rem)) rotate(-360deg)' },
         },
         float: {
           '0%, 100%': { transform: 'translate(0, 0) scale(1)' },

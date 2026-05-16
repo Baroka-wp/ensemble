@@ -24,8 +24,8 @@ const TESTIMONIALS = [
 
 export function TestimonialsSection() {
   return (
-    <section id="temoignages" className="scroll-mt-24 bg-espresso py-20 text-cream md:py-28">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section id="temoignages" className="scroll-mt-20 bg-espresso py-16 text-cream sm:scroll-mt-24 sm:py-20 md:py-28">
+      <div className="mx-auto max-w-6xl px-4 sm:px-5 md:px-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-xl">
             <p className="text-[10px] uppercase tracking-[0.25em] text-cream/45">Ils nous font confiance</p>
@@ -37,11 +37,11 @@ export function TestimonialsSection() {
             Témoignages illustratifs — remplacez par vos retours clients dès les premières campagnes.
           </p>
         </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-5 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (
             <blockquote
               key={t.name}
-              className="flex flex-col justify-between rounded-3xl border border-white/8 bg-white/[0.04] p-7 backdrop-blur-sm"
+              className="flex flex-col justify-between rounded-3xl border border-white/8 bg-white/[0.04] p-6 backdrop-blur-sm sm:p-7"
             >
               <p className="font-serif text-base leading-relaxed text-cream/85">&ldquo;{t.quote}&rdquo;</p>
               <footer className="mt-8 flex items-center gap-3 border-t border-white/8 pt-6">
