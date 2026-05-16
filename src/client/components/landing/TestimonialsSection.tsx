@@ -1,41 +1,39 @@
 const TESTIMONIALS = [
   {
     quote:
-      'On a remplacé les codes papier et les DM. En une soirée, on voit qui amène du monde et combien de tickets sont sortis.',
-    name: 'Camille R.',
-    role: 'Gérante — Bistro du Marché',
+      'On a remplacé les flyers et les captures WhatsApp. En une soirée, je sais qui amène du monde et combien de tickets sont sortis.',
+    name: 'Aïssa K.',
+    role: 'Gérante — Maquis Le Baoulé, Abidjan',
     accent: 'restaurant',
   },
   {
     quote:
-      'Mes abonnés scannent en terrasse avec mon code. Je check mes gains sur mon tel entre deux stories — c’est clair.',
-    name: 'Yasmine K.',
-    role: 'Créatrice food — Lyon',
+      'Mes abonnés scannent en terrasse avec mon code, je vois mes gains en direct sur mon tel. Ça vaut largement plus que les paniers offerts.',
+    name: 'Awa D.',
+    role: 'Créatrice food — 8k abonnés, Dakar',
     accent: 'influencer',
   },
   {
     quote:
-      'Le ticket à l’écran, la caisse valide en deux secondes. Nos clients comprennent tout de suite, zéro friction.',
-    name: 'Thomas M.',
-    role: 'Chef de salle — Maison Lumière',
+      'Le ticket à l’écran, la caisse valide en deux secondes. Plus de codes papier perdus, plus d’histoires avec les serveurs.',
+    name: 'Kossi M.',
+    role: 'Chef de salle — Chez Maman Adjoa, Cotonou',
     accent: 'restaurant',
   },
 ] as const;
 
 export function TestimonialsSection() {
   return (
-    <section id="temoignages" className="scroll-mt-20 bg-espresso py-16 text-cream sm:scroll-mt-24 sm:py-20 md:py-28">
+    <section
+      id="temoignages"
+      className="scroll-mt-20 bg-espresso py-16 text-cream sm:scroll-mt-24 sm:py-20 md:py-28"
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-5 md:px-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-          <div className="max-w-xl">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-cream/45">Ils nous font confiance</p>
-            <h2 className="mt-3 font-sans text-3xl font-thin tracking-wide md:text-4xl">
-              La preuve sociale, en salle.
-            </h2>
-          </div>
-          <p className="max-w-sm font-serif text-sm text-cream/55">
-            Témoignages illustratifs — remplacez par vos retours clients dès les premières campagnes.
-          </p>
+        <div className="max-w-2xl">
+          <p className="text-[10px] uppercase tracking-[0.25em] text-cream/45">Ils parlent de nous</p>
+          <h2 className="mt-3 font-sans text-3xl font-thin tracking-wide md:text-4xl">
+            Des restaurants et créateurs déjà en campagne.
+          </h2>
         </div>
         <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-5 md:grid-cols-3">
           {TESTIMONIALS.map((t) => (
