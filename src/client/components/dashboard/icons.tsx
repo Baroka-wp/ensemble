@@ -130,3 +130,14 @@ export function IconPlus({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconStar({ className }: IconProps) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <path
+        d="M12 3.5l2.6 5.3 5.9.85-4.25 4.15 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.65l5.9-.85L12 3.5z"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

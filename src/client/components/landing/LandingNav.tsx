@@ -23,6 +23,12 @@ export function LandingNav() {
         </Link>
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
           <Link
+            to="/restaurants"
+            className="hidden sm:inline-flex shrink-0 items-center text-xs font-medium uppercase tracking-wider2 text-warmgray hover:text-orange transition-colors px-2"
+          >
+            Annuaire
+          </Link>
+          <Link
             to={loginTo}
             className={`${navBtnBase} border border-espresso/15 bg-white/80 px-3 py-1.5 text-espresso hover:border-espresso/30 sm:px-4 sm:py-2`}
           >

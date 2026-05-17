@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiFetch, ApiError } from '../../lib/api';
 import { getVisitorId } from '../../lib/fingerprint';
@@ -11,6 +11,7 @@ import {
 import { TicketScreen } from './TicketScreen';
 import { BrandHeader } from '../../components/BrandHeader';
 import { PublicCard, PublicPageLayout } from '../../components/PublicPageLayout';
+import { rememberTicket } from '../../lib/visitedTickets';
 
 function errorMessage(code: string, fallback: string) {
   return (SCAN_ERROR_CODES as Record<string, string>)[code] ?? fallback;
@@ -48,7 +49,15 @@ export function ScanPage() {
   const mutation = useMutation({
     mutationFn: (input: { slug: string; influencerCode: string; fingerprint: string }) =>
       apiFetch<{ ticket: TicketPublic }>('/public/scan', { method: 'POST', body: input }),
-    onSuccess: ({ ticket }) => setTicket(ticket),
+    onSuccess: ({ ticket }) => {
+      setTicket(ticket);
+      // Mémorise le ticket localement (utile si le client revient via /a/...)
+      rememberTicket({
+        ticketCode: ticket.code,
+        restaurantSlug: slug,
+        createdAt: new Date(ticket.createdAt).getTime(),
+      });
+    },
     onError: (err) => {
       if (err instanceof ApiError) {
         setError(errorMessage(err.code, err.message));
@@ -141,6 +150,19 @@ export function ScanPage() {
               {mutation.isPending ? 'Création du ticket…' : 'Obtenir ma réduction'}
             </button>
           </form>
+
+          {/* Alternative : pas de code influenceur, mais le client veut quand même donner son avis. */}
+          <div className="mt-6 border-t border-sand/60 pt-6">
+            <p className="mb-3 text-center text-[11px] uppercase tracking-wider2 text-warmgray">
+              Pas de code ?
+            </p>
+            <Link
+              to={`/s/${restaurant.slug}/avis-libre`}
+              className="inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-4 text-xs font-medium uppercase tracking-wider2 text-cream shadow-md shadow-orange/25 transition-colors hover:bg-orange-dark"
+            >
+              Donner mon avis
+            </Link>
+          </div>
         </PublicCard>
       </div>
     </PublicPageLayout>

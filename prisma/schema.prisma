@@ -22,6 +22,7 @@ model Restaurant {
   collaborations Collaboration[]
   scans          Scan[]
   deviceBlocks   DeviceBlock[]
+  reviews        Review[]
 
   @@map("restaurants")
 }
@@ -100,6 +101,7 @@ model Scan {
   restaurant    Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   collaboration Collaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
   ticket        Ticket?
+  review        Review?
 
   @@index([restaurantId, createdAt(sort: Desc)])
   @@index([collaborationId, createdAt(sort: Desc)])
@@ -130,4 +132,34 @@ model DeviceBlock {
   @@unique([restaurantId, fingerprintHash], name: "uniq_device_block")
   @@index([restaurantId, fingerprintHash, blockedUntil])
   @@map("device_blocks")
+}
+
+// Avis d'un client.
+//   - Un avis par device par restaurant : unique (restaurantId, fingerprintHash).
+//   - scanId nullable : null = avis libre (client venu sans code influenceur).
+//     L'unicité reste : Postgres autorise plusieurs NULL dans un UNIQUE.
+//   - Notes 1-5 sur 3 critères (ambiance, goût, service), commentaire optionnel.
+//   - hiddenAt : soft-delete par le restaurant en cas d'abus (l'avis reste comptabilisé en stats internes mais
+//     n'apparaît plus en public, et le contenu du commentaire n'est plus affiché).
+model Review {
+  id              String   @id @default(uuid()) @db.Uuid
+  restaurantId    String   @map("restaurant_id") @db.Uuid
+  scanId          String?  @unique @map("scan_id") @db.Uuid
+  fingerprintHash String   @map("fingerprint_hash")
+
+  ratingAmbiance Int @map("rating_ambiance")
+  ratingTaste    Int @map("rating_taste")
+  ratingService  Int @map("rating_service")
+
+  comment String? @db.Text
+
+  hiddenAt  DateTime? @map("hidden_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  scan       Scan?      @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, fingerprintHash], name: "uniq_review_per_device")
+  @@index([restaurantId, createdAt(sort: Desc)])
+  @@map("reviews")
 }

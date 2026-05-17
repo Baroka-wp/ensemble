@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '../../lib/auth';
 import { apiFetch } from '../../lib/api';
 import { DashboardShell } from '../../components/dashboard/DashboardShell';
-import { IconActivity, IconHome, IconQr, IconUsers } from '../../components/dashboard/icons';
+import { IconActivity, IconHome, IconQr, IconStar, IconUsers } from '../../components/dashboard/icons';
 import type { CollaborationStatus } from '../../../shared/schemas/collaboration';
 
 const ICON_CLASS = 'h-[18px] w-[18px]';
@@ -34,6 +34,7 @@ export function DashboardLayout() {
       badge: pendingCount > 0 ? pendingCount : undefined,
     },
     { to: '/dashboard/scans', label: 'Scans', icon: <IconActivity className={ICON_CLASS} /> },
+    { to: '/dashboard/avis', label: 'Avis', icon: <IconStar className={ICON_CLASS} /> },
     { to: '/dashboard/qr', label: 'QR salle', icon: <IconQr className={ICON_CLASS} /> },
   ];
 

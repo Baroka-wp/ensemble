@@ -41,8 +41,13 @@ export function LandingFooter() {
             </ul>
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-warmgray">Produit</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-warmgray">Découvrir</p>
             <ul className="mt-4 space-y-2 text-sm text-espresso/80">
+              <li>
+                <Link to="/restaurants" className="hover:text-orange">
+                  Annuaire des restaurants
+                </Link>
+              </li>
               <li>
                 <a href="#comment" className="hover:text-orange">
                   Comment ça marche

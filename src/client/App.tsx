@@ -9,8 +9,14 @@ import { CollaborationsListPage } from './pages/dashboard/collaborations/Collabo
 import { CollaborationQuickCreatePage } from './pages/dashboard/collaborations/CollaborationQuickCreatePage';
 import { CollaborationEditPage } from './pages/dashboard/collaborations/CollaborationEditPage';
 import { ScansPage } from './pages/dashboard/ScansPage';
+import { ReviewsPage } from './pages/dashboard/ReviewsPage';
 import { QrPage } from './pages/dashboard/QrPage';
 import { ScanPage } from './pages/public/ScanPage';
+import { ReviewFormPage } from './pages/public/ReviewFormPage';
+import { ReviewShortcutPage } from './pages/public/ReviewShortcutPage';
+import { FreeReviewPage } from './pages/public/FreeReviewPage';
+import { RestaurantsDirectoryPage } from './pages/public/restaurants/RestaurantsDirectoryPage';
+import { RestaurantDetailsPage } from './pages/public/restaurants/RestaurantDetailsPage';
 import { ChooseSpacePage } from './pages/public/ChooseSpacePage';
 import { InfluencerLoginPage } from './pages/public/InfluencerLoginPage';
 import { InfluencerRegisterPage } from './pages/public/InfluencerRegisterPage';
@@ -68,10 +74,17 @@ export function App() {
         <Route path="collaborations/new" element={<CollaborationQuickCreatePage />} />
         <Route path="collaborations/:id" element={<CollaborationEditPage />} />
         <Route path="scans" element={<ScansPage />} />
+        <Route path="avis" element={<ReviewsPage />} />
         <Route path="qr" element={<QrPage />} />
       </Route>
 
       <Route path="/s/:slug" element={<ScanPage />} />
+      <Route path="/s/:slug/avis" element={<ReviewFormPage />} />
+      <Route path="/s/:slug/avis-libre" element={<FreeReviewPage />} />
+      <Route path="/a/:ticketCode" element={<ReviewShortcutPage />} />
+
+      <Route path="/restaurants" element={<RestaurantsDirectoryPage />} />
+      <Route path="/restaurants/:slug" element={<RestaurantDetailsPage />} />
 
       <Route path="/i/login" element={<InfluencerLoginPage />} />
       <Route path="/i/register" element={<InfluencerRegisterPage />} />

@@ -14,7 +14,9 @@ import { influencerAuthRouter } from './routes/influencerAuth.js';
 import { influencerCollaborationsRouter } from './routes/influencer.collaborations.js';
 import { adminCollaborationsRouter } from './routes/admin.collaborations.js';
 import { adminStatsRouter } from './routes/admin.stats.js';
+import { adminReviewsRouter } from './routes/admin.reviews.js';
 import { publicRouter } from './routes/public.js';
+import { publicReviewsRouter } from './routes/public.reviews.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createSocketServer } from './socket/index.js';
 
@@ -42,8 +44,10 @@ api.use('/auth', authRouter);
 api.use('/influencer-auth', influencerAuthRouter);
 api.use('/influencer-auth', influencerCollaborationsRouter);
 api.use('/admin/collaborations', adminCollaborationsRouter);
+api.use('/admin/reviews', adminReviewsRouter);
 api.use('/admin', adminStatsRouter);
 api.use('/public', publicRouter);
+api.use('/public', publicReviewsRouter);
 app.use('/api', api);
 
 // 3. Static SPA (build Vite) — dès que dist/client est présent (image Docker / prod)

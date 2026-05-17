@@ -49,8 +49,13 @@ export function DashboardHome() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            <QuickTile to="/dashboard/collaborations" icon={<IconUsers className="h-5 w-5" />} label="Collaborations" />
+          <div className="mb-8 grid grid-cols-3 gap-2 sm:gap-3">
+            <QuickTile
+              to="/dashboard/collaborations"
+              icon={<IconUsers className="h-5 w-5" />}
+              label="Collaborations"
+              shortLabel="Collab."
+            />
             <QuickTile to="/dashboard/scans" icon={<IconActivity className="h-5 w-5" />} label="Scans" />
             <QuickTile to="/dashboard/qr" icon={<IconQr className="h-5 w-5" />} label="QR" />
           </div>
@@ -81,14 +86,31 @@ export function DashboardHome() {
   );
 }
 
-function QuickTile({ to, icon, label }: { to: string; icon: ReactNode; label: string }) {
+function QuickTile({
+  to,
+  icon,
+  label,
+  shortLabel,
+}: {
+  to: string;
+  icon: ReactNode;
+  label: string;
+  shortLabel?: string;
+}) {
+  const compact = shortLabel ?? label;
+
   return (
     <Link
       to={to}
-      className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border border-sand/80 bg-white/80 hover:border-terracotta/40 hover:bg-amber/10 transition-colors text-center"
+      className="flex min-w-0 w-full flex-col items-center justify-center gap-1.5 rounded-xl border border-sand/80 bg-white/80 p-2.5 text-center transition-colors hover:border-terracotta/40 hover:bg-amber/10 sm:gap-2 sm:p-4"
     >
-      <span className="text-terracotta">{icon}</span>
-      <span className="text-xs uppercase tracking-wider2 text-espresso">{label}</span>
+      <span className="shrink-0 text-terracotta">{icon}</span>
+      <span className="w-full min-w-0 text-[10px] uppercase leading-tight tracking-wide text-espresso [overflow-wrap:anywhere] sm:hidden">
+        {compact}
+      </span>
+      <span className="hidden w-full min-w-0 text-xs uppercase tracking-wider2 text-espresso sm:block">
+        {label}
+      </span>
     </Link>
   );
 }
