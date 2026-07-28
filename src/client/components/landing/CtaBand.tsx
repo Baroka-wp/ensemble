@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
 import { useAudience } from './AudienceContext';
+import { PILOT_WHATSAPP_URL } from '../../lib/contact';
 
 const CONTENT = {
   restaurant: {
-    eyebrow: 'Configurez en 5 minutes',
-    title: 'Lancez votre première campagne ce soir.',
+    eyebrow: 'Cinq places en août',
+    title: 'Transformez une recommandation en visite mesurable.',
     sub:
-      'Créez votre espace, imprimez votre QR et invitez vos premiers influenceurs. Gratuit pendant la phase pilote, sans engagement.',
-    primary: { label: 'Créer mon restaurant', to: '/register' },
-    secondary: { label: 'Voir un exemple en salle', to: '/s/chez-martin' },
+      'Nous lançons la première campagne avec vous : configuration, QR, créateurs et bilan sur 30 jours.',
+    primary: { label: 'Réserver le diagnostic', to: PILOT_WHATSAPP_URL },
+    secondary: { label: 'Voir l’offre pilote', to: '#offre' },
   },
   influencer: {
     eyebrow: 'Inscription en 2 minutes',
@@ -53,22 +54,45 @@ export function CtaBand() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            to={c.primary.to}
-            className="inline-flex w-full items-center justify-center rounded-full bg-orange px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-colors hover:bg-orange-dark sm:w-auto"
-          >
-            {c.primary.label}
-          </Link>
-          <Link
-            to={c.secondary.to}
-            className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-espresso transition-colors hover:bg-white/90 sm:w-auto"
-          >
-            {c.secondary.label}
-          </Link>
+          {audience === 'restaurant' ? (
+            <>
+              <a
+                href={c.primary.to}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex w-full items-center justify-center rounded-full bg-orange px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-all hover:-translate-y-0.5 hover:bg-orange-dark sm:w-auto"
+              >
+                {c.primary.label}
+              </a>
+              <a
+                href={c.secondary.to}
+                className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-espresso transition-colors hover:bg-white/90 sm:w-auto"
+              >
+                {c.secondary.label}
+              </a>
+            </>
+          ) : (
+            <>
+              <Link
+                to={c.primary.to}
+                className="inline-flex w-full items-center justify-center rounded-full bg-orange px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-colors hover:bg-orange-dark sm:w-auto"
+              >
+                {c.primary.label}
+              </Link>
+              <Link
+                to={c.secondary.to}
+                className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white px-10 py-4 text-xs font-medium uppercase tracking-[0.2em] text-espresso transition-colors hover:bg-white/90 sm:w-auto"
+              >
+                {c.secondary.label}
+              </Link>
+            </>
+          )}
         </div>
 
         <p className="mt-6 text-[11px] uppercase tracking-[0.25em] text-warmgray/60">
-          Aucune carte bancaire · Pilote gratuit en cours
+          {audience === 'restaurant'
+            ? 'Diagnostic de 20 minutes · lancement sous 48 h'
+            : 'Compte créateur gratuit · sans seuil minimum'}
         </p>
       </div>
     </section>

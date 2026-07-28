@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { EnsembleMark } from '../EnsembleMark';
+import { PILOT_WHATSAPP_URL } from '../../lib/contact';
 
 export function LandingFooter() {
   return (
@@ -19,9 +20,9 @@ export function LandingFooter() {
             <p className="text-[10px] uppercase tracking-[0.2em] text-warmgray">Restaurant</p>
             <ul className="mt-4 space-y-2 text-sm text-espresso/80">
               <li>
-                <Link to="/demarrer" className="hover:text-orange">
-                  Créer un compte
-                </Link>
+                <a href={PILOT_WHATSAPP_URL} target="_blank" rel="noreferrer" className="hover:text-orange">
+                  Réserver un diagnostic
+                </a>
               </li>
               <li>
                 <Link to="/connexion" className="hover:text-orange">

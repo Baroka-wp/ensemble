@@ -5,6 +5,7 @@ import { HowItWorks } from '../components/landing/HowItWorks';
 import { PromisesSection } from '../components/landing/PromisesSection';
 import { TestimonialsSection } from '../components/landing/TestimonialsSection';
 import { TopRestaurantsSection } from '../components/landing/TopRestaurantsSection';
+import { PilotOfferSection } from '../components/landing/PilotOfferSection';
 import { FaqSection } from '../components/landing/FaqSection';
 import { CtaBand } from '../components/landing/CtaBand';
 import { LandingFooter } from '../components/landing/LandingFooter';
@@ -22,6 +23,7 @@ export function HomePage() {
           <PromisesSection />
           <TestimonialsSection />
           <TopRestaurantsSection />
+          <PilotOfferSection />
           <FaqSection />
           <CtaBand />
         </main>

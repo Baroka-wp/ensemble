@@ -3,17 +3,18 @@ import { SocialOrbitVisual } from './SocialOrbitVisual';
 import { AudienceSwitcher } from './AudienceSwitcher';
 import { useAudience } from './AudienceContext';
 import { TicketMockup } from './mockups/TicketMockup';
+import { PILOT_WHATSAPP_URL } from '../../lib/contact';
 
 const CONTENT = {
   restaurant: {
-    badge: 'Pour les restaurants',
-    h1Lead: 'Vos influenceurs locaux',
-    h1Accent: 'remplissent votre salle.',
-    cta: 'Créer mon restaurant',
-    ctaTo: '/register',
-    altCta: 'Je suis déjà client',
-    altCtaTo: '/login',
-    bullets: ['Gratuit pendant la phase pilote', 'Sans app à installer pour vos clients'],
+    badge: 'Campagne pilote · 5 établissements',
+    h1Lead: 'Sachez enfin qui',
+    h1Accent: 'vous ramène des clients.',
+    cta: 'Réserver un diagnostic',
+    ctaTo: PILOT_WHATSAPP_URL,
+    altCta: 'Voir comment ça marche',
+    altCtaTo: '#comment',
+    bullets: ['Lancée avec vous en 48 h', 'Résultats suivis pendant 30 jours'],
   },
   influencer: {
     badge: 'Pour les créateurs',
@@ -67,18 +68,39 @@ export function HeroSection() {
             </h1>
 
             <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:justify-center md:justify-start">
-              <Link
-                to={c.ctaTo}
-                className="inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-all hover:bg-orange-dark hover:shadow-orange/40 sm:w-auto sm:px-8 sm:py-4"
-              >
-                {c.cta}
-              </Link>
-              <Link
-                to={c.altCtaTo}
-                className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white/70 px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-espresso backdrop-blur-sm transition-colors hover:border-espresso/30 hover:bg-white sm:w-auto sm:px-8 sm:py-4"
-              >
-                {c.altCta}
-              </Link>
+              {audience === 'restaurant' ? (
+                <>
+                  <a
+                    href={c.ctaTo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-all hover:-translate-y-0.5 hover:bg-orange-dark hover:shadow-orange/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange sm:w-auto sm:px-8 sm:py-4"
+                  >
+                    {c.cta}
+                  </a>
+                  <a
+                    href={c.altCtaTo}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white/70 px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-espresso backdrop-blur-sm transition-colors hover:border-espresso/30 hover:bg-white sm:w-auto sm:px-8 sm:py-4"
+                  >
+                    {c.altCta}
+                  </a>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to={c.ctaTo}
+                    className="inline-flex w-full items-center justify-center rounded-full bg-orange px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-cream shadow-lg shadow-orange/30 transition-all hover:bg-orange-dark hover:shadow-orange/40 sm:w-auto sm:px-8 sm:py-4"
+                  >
+                    {c.cta}
+                  </Link>
+                  <Link
+                    to={c.altCtaTo}
+                    className="inline-flex w-full items-center justify-center rounded-full border border-espresso/15 bg-white/70 px-6 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-espresso backdrop-blur-sm transition-colors hover:border-espresso/30 hover:bg-white sm:w-auto sm:px-8 sm:py-4"
+                  >
+                    {c.altCta}
+                  </Link>
+                </>
+              )}
             </div>
 
             <ul className="mt-6 flex flex-col items-center gap-1.5 text-[11px] leading-relaxed text-warmgray/80 sm:mt-7 sm:flex-row sm:flex-wrap sm:gap-x-5 sm:text-xs md:justify-start">

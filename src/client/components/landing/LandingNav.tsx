@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { EnsembleMark } from '../EnsembleMark';
 import { useAudience } from './AudienceContext';
+import { PILOT_WHATSAPP_URL } from '../../lib/contact';
 
 const navBtnBase =
   'inline-flex shrink-0 items-center justify-center rounded-full text-[10px] font-medium uppercase tracking-wider2 transition-colors sm:text-xs';
@@ -34,12 +35,23 @@ export function LandingNav() {
           >
             Connexion
           </Link>
-          <Link
-            to={registerTo}
-            className={`${navBtnBase} bg-orange px-3 py-1.5 text-cream shadow-md shadow-orange/25 hover:bg-orange-dark sm:px-4 sm:py-2`}
-          >
-            Démarrer
-          </Link>
+          {audience === 'restaurant' ? (
+            <a
+              href={PILOT_WHATSAPP_URL}
+              target="_blank"
+              rel="noreferrer"
+              className={`${navBtnBase} bg-orange px-3 py-1.5 text-cream shadow-md shadow-orange/25 hover:bg-orange-dark sm:px-4 sm:py-2`}
+            >
+              Diagnostic
+            </a>
+          ) : (
+            <Link
+              to={registerTo}
+              className={`${navBtnBase} bg-orange px-3 py-1.5 text-cream shadow-md shadow-orange/25 hover:bg-orange-dark sm:px-4 sm:py-2`}
+            >
+              Démarrer
+            </Link>
+          )}
         </div>
       </div>
     </header>

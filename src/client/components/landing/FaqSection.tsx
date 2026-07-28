@@ -4,7 +4,7 @@ import { useAudience } from './AudienceContext';
 const COMMON_FAQ = [
   {
     q: 'Combien ça coûte ?',
-    a: 'Gratuit pendant la phase pilote, sans engagement et sans plafond de scans. Aucune carte bancaire demandée à l’inscription.',
+    a: 'Pour les restaurants, l’offre pilote d’août coûte 125 000 FCFA : configuration, QR, intégration de trois créateurs maximum, suivi pendant 30 jours et bilan. Le compte créateur reste gratuit.',
   },
   {
     q: 'Faut-il installer une application ?',
@@ -27,7 +27,7 @@ const RESTO_FAQ = [
   },
   {
     q: 'Qu’est-ce qui empêche un client de réutiliser son code ?',
-    a: 'Une empreinte de son appareil est calculée au premier scan. Sur votre établissement, ce même appareil ne pourra plus obtenir d’autre réduction, à vie.',
+    a: 'Une empreinte non lisible de son appareil est calculée au premier scan. Sur votre établissement, ce même appareil ne peut obtenir qu’une réduction sur une période de 24 heures.',
   },
   {
     q: 'Si un influenceur quitte mon restaurant, que se passe-t-il ?',
