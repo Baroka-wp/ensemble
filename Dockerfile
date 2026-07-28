@@ -38,8 +38,8 @@ COPY --from=build /app/dist ./dist
 
 EXPOSE 3000
 
-# start-period: laisse le temps à prisma migrate deploy + boot serveur
+# La vitrine reste disponible même pendant une indisponibilité temporaire de la base.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
-  CMD wget -qO- http://127.0.0.1:3000/api/health || exit 1
+  CMD wget -qO- http://127.0.0.1:3000/api/live || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy || echo 'Database migration deferred'; exec node dist/server/index.js"]

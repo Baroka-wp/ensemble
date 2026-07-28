@@ -3,6 +3,11 @@ import { prisma } from '../lib/prisma.js';
 
 export const healthRouter = Router();
 
+// Liveness : le processus HTTP peut servir la vitrine même si la base est temporairement indisponible.
+healthRouter.get('/live', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 healthRouter.get('/health', async (_req, res) => {
   let dbStatus: 'ok' | 'down' = 'ok';
   try {
